@@ -1,13 +1,13 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 from model import ModelArgs
-from typing import Tuple
+from typing import Tuple, List
 
 
 
 
 class TokenDataset(Dataset):
-    def __init__(self, model_args: ModelArgs, input_ids: torch.Tensor) -> None:
+    def __init__(self, model_args: ModelArgs, input_ids: List) -> None:
         """
         Initializes the TokenDataset.
 
