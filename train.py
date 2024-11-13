@@ -5,6 +5,8 @@ from dataset import *
 import lightning as L
 from lightning.pytorch import Trainer
 
+hf_hub_download(repo_id="pt-sk/ll-3.2-1B_Instruct", filename="original/consolidated.00.pth", repo_type="model", local_dir="/kaggle/working")
+
 gin.parse_config_file('config/1B.gin')
 config = ModelArgs()
 
@@ -13,7 +15,7 @@ torch.manual_seed(config.seed)
 model = Transformer(config)
 
 
-weights = torch.load("/kaggle/working/ll-3.2-1B_Instruct/original/consolidated.00.pth", map_location="cpu")
+weights = torch.load("/kaggle/working/original/consolidated.00.pth", map_location="cpu")
 
 fp32_weights = {k: v.to(dtype=torch.float32) for k, v in weights.items()}
 
