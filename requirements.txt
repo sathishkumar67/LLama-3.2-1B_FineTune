@@ -1,5 +1,3 @@
 gin-config
 lightning
-deepspeed 
-triton
 huggingface_hub
