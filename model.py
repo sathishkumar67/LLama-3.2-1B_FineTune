@@ -278,7 +278,7 @@ class Transformer(nn.Module):
         # token embeddings layer and transformer layers
         self.tok_embeddings = nn.Embedding(self.vocab_size, params.dim)
         self.layers = torch.nn.ModuleList()
-        for layer_id in range(params.n_layers):
+        for _ in range(params.n_layers):
             self.layers.append(TransformerBlock(params))
 
         # normalization and output layers
