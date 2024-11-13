@@ -15,7 +15,7 @@ torch.manual_seed(config.seed)
 model = Transformer(config)
 
 
-weights = torch.load("/kaggle/working/original/consolidated.00.pth", map_location="cpu")
+weights = torch.load("/kaggle/working/original/consolidated.00.pth", map_location="cpu", )
 
 fp32_weights = {k: v.to(dtype=torch.float32) for k, v in weights.items()}
 
