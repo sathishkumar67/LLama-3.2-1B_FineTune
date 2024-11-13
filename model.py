@@ -314,7 +314,7 @@ class Transformer(nn.Module):
             not provided, the loss tensor is `None`."""
         B, T = tokens.shape
         assert T <= self.params.max_seq_len, f"Sequence length {T} exceeds maximum sequence length {self.params.max_seq_len}"
-        assert B <= self.params.max_batch_size, f"Batch size {B} exceeds maximum batch size {self.params.max_batch_size}"
+        assert B <= self.params.batch_size, f"Batch size {B} exceeds maximum batch size {self.params.max_batch_size}"
 
         h = self.tok_embeddings(tokens) # get token embeddings for input tokens
         # self.freqs_cis = self.freqs_cis.to(h.device)
