@@ -20,8 +20,6 @@ print(fp32_weights["tok_embeddings.weight"].dtype)
 
 model.load_state_dict(fp32_weights)
 
-model = torch.compile(model)
-
 hf_hub_download(repo_id="pt-sk/chatgpt-dataset", filename="conversation_tokens.npy", repo_type="dataset", local_dir="/kaggle/working")
 
 conversation = np.load("/kaggle/working/conversation_tokens.npy")
@@ -53,5 +51,5 @@ class ModelWrapper(L.LightningModule):
         return optimizer
     
 modelwrapper = ModelWrapper(model)
-trainer = L.Trainer(devices=2, accelerator="cuda", strategy="deepspeed_stage_2", precision="bf16", max_epochs=1, gradient_clip_val=1.0)
+trainer = L.Trainer(devices=2,accelerator="gpu", strategy="deepspeed_stage_2", precision="bf16", max_epochs=1, gradient_clip_val=1.0)
 trainer.fit(modelwrapper, dataloader)
