@@ -12,7 +12,6 @@ torch.manual_seed(config.seed)
 
 model = Transformer(config)
 
-model = torch.compile(model)
 
 weights = torch.load("/kaggle/working/ll-3.2-1B_Instruct/original/consolidated.00.pth", map_location="cpu")
 
@@ -20,6 +19,8 @@ fp32_weights = {k: v.to(dtype=torch.float32) for k, v in weights.items()}
 print(fp32_weights["tok_embeddings.weight"].dtype)
 
 model.load_state_dict(fp32_weights)
+
+model = torch.compile(model)
 
 hf_hub_download(repo_id="pt-sk/chatgpt-dataset", filename="conversation_tokens.npy", repo_type="dataset", local_dir="/kaggle/working")
 
