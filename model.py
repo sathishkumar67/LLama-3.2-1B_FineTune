@@ -317,7 +317,7 @@ class Transformer(nn.Module):
         assert B <= self.params.batch_size, f"Batch size {B} exceeds maximum batch size {self.params.max_batch_size}"
 
         h = self.tok_embeddings(tokens) # get token embeddings for input tokens
-        # self.freqs_cis = self.freqs_cis.to(h.device)
+        self.freqs_cis = self.freqs_cis.to(h.device)
         
         # apply transformer layers
         for layer in self.layers:
