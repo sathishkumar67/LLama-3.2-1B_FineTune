@@ -1,11 +1,9 @@
 from model import *
-from huggingface_hub import hf_hub_download, snapshot_download
+from huggingface_hub import hf_hub_download
 import numpy as np
 from dataset import *
 import lightning as L
 from lightning.pytorch import Trainer
-
-snapshot_download(repo_id="pt-sk/ll-3.2-1B_Instruct", repo_type="model", local_dir="/kaggle/working")
 
 gin.parse_config_file('config/1B.gin')
 config = ModelArgs()
@@ -13,6 +11,8 @@ config = ModelArgs()
 torch.manual_seed(config.seed)
 
 model = Transformer(config)
+
+model = torch.compile(model)
 
 weights = torch.load("/kaggle/working/ll-3.2-1B_Instruct/original/consolidated.00.pth", map_location="cpu")
 
