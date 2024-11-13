@@ -1,11 +1,11 @@
 from model import *
-from huggingface_hub import hf_hub_download
+from huggingface_hub import hf_hub_download, snapshot_download
 import numpy as np
 from dataset import *
 import lightning as L
 from lightning.pytorch import Trainer
 
-
+snapshot_download(repo_id="pt-sk/ll-3.2-1B_Instruct", repo_type="model", local_dir="/kaggle/working")
 
 gin.parse_config_file('config/1B.gin')
 config = ModelArgs()
@@ -52,5 +52,5 @@ class ModelWrapper(L.LightningModule):
         return optimizer
     
 modelwrapper = ModelWrapper(model)
-trainer = L.Trainer(devices=2, accelerator="cuda", strategy="deepspeed_stage_2", precision=16)
+trainer = L.Trainer(devices=2, accelerator="cuda", strategy="deepspeed_stage_2", precision="bf16", max_epochs=1, gradient_clip_val=1.0)
 trainer.fit(modelwrapper, dataloader)
