@@ -51,6 +51,6 @@ class ModelWrapper(L.LightningModule):
         return optimizer
     
 modelwrapper = ModelWrapper(model)
-trainer = L.Trainer(devices=2,accelerator="gpu", strategy="deepspeed_stage_2", max_epochs=1, gradient_clip_val=1.0)
+trainer = L.Trainer(devices=2,accelerator="gpu", max_epochs=1, gradient_clip_val=1.0)
 trainer.fit(modelwrapper, dataloader)
 #  precision="bf16"
