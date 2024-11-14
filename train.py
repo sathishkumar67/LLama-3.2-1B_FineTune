@@ -13,13 +13,13 @@ config = ModelArgs()
 torch.manual_seed(config.seed)
 
 model = Transformer(config)
-
+model.to(torch.bfloat16)
 
 weights = torch.load("/kaggle/working/original/consolidated.00.pth", map_location="cpu", )
+model.load_state_dict(weights)
 
-fp32_weights = {k: v.to(dtype=torch.float32) for k, v in weights.items()}
-
-model.load_state_dict(fp32_weights)
+# fp32_weights = {k: v.to(dtype=torch.float32) for k, v in weights.items()}
+# model.load_state_dict(fp32_weights)
 
 hf_hub_download(repo_id="pt-sk/chatgpt-dataset", filename="conversation_tokens.npy", repo_type="dataset", local_dir="/kaggle/working")
 
@@ -41,7 +41,7 @@ class ModelWrapper(L.LightningModule):
         optimizer.zero_grad()
         
         batch, label = batch
-        logits, loss = self.model(batch, label)
+        _, loss = self.model(batch, label)
         self.log("Train_Loss", loss, prog_bar=True)
 
         return loss
@@ -51,5 +51,6 @@ class ModelWrapper(L.LightningModule):
         return optimizer
     
 modelwrapper = ModelWrapper(model)
-trainer = L.Trainer(devices=2,accelerator="gpu", strategy="deepspeed_stage_2", precision="bf16", max_epochs=1, gradient_clip_val=1.0)
+trainer = L.Trainer(devices=2,accelerator="gpu", strategy="deepspeed_stage_2", max_epochs=1, gradient_clip_val=1.0)
 trainer.fit(modelwrapper, dataloader)
+#  precision="bf16"
