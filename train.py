@@ -29,12 +29,52 @@ dataset = TokenDataset(config, conversation)
 dataloader = DataLoader(dataset, shuffle=True, drop_last=True, batch_size=config.batch_size)
 
 
+# class ModelWrapper(L.LightningModule):
+#     def __init__(self, model):
+#         super().__init__()
+#         self.model = model
+#         self.optimizer = self.configure_optimizers()
+
+#     def training_step(self, batch, batch_idx):
+#         self.model.train()
+#         optimizer = self.optimizers()
+#         optimizer.zero_grad()
+        
+#         batch, label = batch
+#         _, loss = self.model(batch, label)
+#         self.log("Train_Loss", loss, prog_bar=True)
+
+#         return loss
+
+#     def configure_optimizers(self):
+#         optimizer = torch.optim.Adam(self.model.parameters(), lr=0.000006)
+#         return optimizer
+    
+# modelwrapper = ModelWrapper(model)
+# trainer = L.Trainer(devices=2,accelerator="gpu", max_epochs=1, gradient_clip_val=1.0)
+# trainer.fit(modelwrapper, dataloader)
+#  precision="bf16"
+
+from torch.distributed.tensor.parallel import ColwiseParallel
+from torch.distributed.tensor.parallel import parallelize_module
+
 class ModelWrapper(L.LightningModule):
     def __init__(self, model):
         super().__init__()
         self.model = model
         self.optimizer = self.configure_optimizers()
 
+    
+    def configure_model(self):
+        # Lightning will set up a `self.device_mesh` for you
+        tp_mesh = self.device_mesh["tensor_parallel"]
+        # Use PyTorch's distributed tensor APIs to parallelize the model
+        plan = {
+            "tok_embeddings": ColwiseParallel(),
+            "output": ColwiseParallel(),
+        }
+        parallelize_module(self.model, tp_mesh, plan)
+        
     def training_step(self, batch, batch_idx):
         self.model.train()
         optimizer = self.optimizers()
@@ -51,6 +91,7 @@ class ModelWrapper(L.LightningModule):
         return optimizer
     
 modelwrapper = ModelWrapper(model)
-trainer = L.Trainer(devices=2,accelerator="gpu", max_epochs=1, gradient_clip_val=1.0)
+from lightning.pytorch.strategies import ModelParallelStrategy
+
+trainer = L.Trainer(devices=2,accelerator="cuda", strategy=ModelParallelStrategy(), max_epochs=1, gradient_clip_val=1.0)
 trainer.fit(modelwrapper, dataloader)
-#  precision="bf16"
